@@ -1,26 +1,32 @@
-FROM public.ecr.aws/lambda/python:3.9
+ARG FUNCTION_DIR="/function"
 
-RUN yum install -y \
-  autoconf \
-  automake \
-  cmake \
-  gcc \
-  gcc-c++ \
-  libtool \
-  make \
-  nasm \
-  pkgconfig
+FROM --platform=linux/amd64 python:3.11 as build-image
 
-WORKDIR ${LAMBDA_TASK_ROOT}
+ARG FUNCTION_DIR
+RUN mkdir -p ${FUNCTION_DIR}
+WORKDIR ${FUNCTION_DIR}
 
-# Copy function code
 COPY modelfile.gguf /opt/modelfile.gguf
-
-# Install the function's dependencies using file requirements.txt
 COPY requirements.txt .
-RUN pip3 install --no-cache-dir -r requirements.txt
+RUN apt-get update
+RUN apt-get -y install libopenblas-dev
+RUN CMAKE_ARGS="-DLLAMA_BLAS=ON -DLLAMA_BLAS_VENDOR=OpenBLAS" pip install --target ${FUNCTION_DIR} --no-cache-dir llama-cpp-python
+RUN pip install --target ${FUNCTION_DIR} --no-cache-dir -r requirements.txt
 
-# COPY all code source
 COPY *.py ./
 
+ENTRYPOINT [ "/usr/local/bin/python", "-m", "awslambdaric" ]
+CMD [ "main.handler" ]
+
+FROM --platform=linux/amd64 python:3.11-slim as custom-docker-runtime
+
+ARG FUNCTION_DIR
+WORKDIR ${FUNCTION_DIR}
+
+RUN apt-get update
+RUN apt-get -y install libopenblas-dev
+
+COPY --from=build-image ${FUNCTION_DIR} ${FUNCTION_DIR}
+
+ENTRYPOINT [ "/usr/local/bin/python", "-m", "awslambdaric" ]
 CMD [ "main.handler" ]
