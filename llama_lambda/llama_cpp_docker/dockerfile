@@ -21,6 +21,6 @@ COPY requirements.txt .
 RUN pip3 install --no-cache-dir -r requirements.txt
 
 # COPY all code source
-COPY *.py .
+COPY *.py ./
 
 CMD [ "main.handler" ]
