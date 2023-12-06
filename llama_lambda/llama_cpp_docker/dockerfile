@@ -15,9 +15,6 @@ RUN pip install --target ${FUNCTION_DIR} --no-cache-dir -r requirements.txt
 
 COPY *.py ./
 
-ENTRYPOINT [ "/usr/local/bin/python", "-m", "awslambdaric" ]
-CMD [ "main.handler" ]
-
 FROM --platform=linux/amd64 python:3.11-slim as custom-docker-runtime
 
 ARG FUNCTION_DIR
@@ -25,6 +22,10 @@ WORKDIR ${FUNCTION_DIR}
 
 RUN apt-get update
 RUN apt-get -y install libopenblas-dev
+
+RUN pip3 install \
+  # --target ${FUNCTION_DIR} \
+  awslambdaric
 
 COPY --from=build-image ${FUNCTION_DIR} ${FUNCTION_DIR}
 
