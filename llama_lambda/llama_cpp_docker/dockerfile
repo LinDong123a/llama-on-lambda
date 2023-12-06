@@ -22,12 +22,13 @@ ARG FUNCTION_DIR
 RUN mkdir -p ${FUNCTION_DIR}
 
 # Copy function code
-COPY main.py ${FUNCTION_DIR}
-COPY modelfile.bin /opt/modelfile.bin
+COPY modelfile.gguf /opt/modelfile.gguf
+COPY *.py ${FUNCTION_DIR}
+
 # Install the runtime interface client
 RUN pip3 install \
-       # --target ${FUNCTION_DIR} \
-        awslambdaric
+  # --target ${FUNCTION_DIR} \
+  awslambdaric
 
 # Install the function's dependencies using file requirements.txt
 COPY requirements.txt .
