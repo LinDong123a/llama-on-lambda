@@ -6,6 +6,7 @@ from fastapi import FastAPI
 from mangum import Mangum
 
 from schemas import PromptInput
+from utils import MessageFormatter
 
 
 logger = logging.getLogger(__name__)
@@ -33,8 +34,9 @@ async def prompt(
     if llm is None:
         llm = Llama(model_path=MODELPATH, seed=seedval)
 
+    formatter = MessageFormatter("chat_ml")
     output = llm(
-        " Below is an instruction that describes a task, as well as any previous text you have generated. You must continue where you left off if there is text following Previous Output. Write a response that appropriately completes the request. When you are finished, write [[COMPLETE]].\n\n Instruction: "+text+" Previous output: "+prioroutput+" Response:",
+        formatter.to_instruct(item.messages, with_response_suffix=True),
         repeat_penalty=item.repeat_penalty,
         echo=False,
         max_tokens=item.max_tokens,
