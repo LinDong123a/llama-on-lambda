@@ -6,7 +6,6 @@ ARG FUNCTION_DIR
 RUN mkdir -p ${FUNCTION_DIR}
 WORKDIR ${FUNCTION_DIR}
 
-COPY modelfile.gguf /opt/modelfile.gguf
 COPY requirements.txt .
 RUN apt-get update
 RUN apt-get -y install libopenblas-dev
@@ -27,6 +26,7 @@ RUN pip3 install \
   # --target ${FUNCTION_DIR} \
   awslambdaric
 
+COPY modelfile.gguf /opt/modelfile.gguf
 COPY --from=build-image ${FUNCTION_DIR} ${FUNCTION_DIR}
 
 ENTRYPOINT [ "/usr/local/bin/python", "-m", "awslambdaric" ]
