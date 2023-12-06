@@ -23,7 +23,6 @@ RUN mkdir -p ${FUNCTION_DIR}
 
 # Copy function code
 COPY modelfile.gguf /opt/modelfile.gguf
-COPY *.py ${FUNCTION_DIR}
 
 # Install the runtime interface client
 RUN pip3 install \
@@ -33,6 +32,9 @@ RUN pip3 install \
 # Install the function's dependencies using file requirements.txt
 COPY requirements.txt .
 RUN pip3 install -r requirements.txt --target "${FUNCTION_DIR}"
+
+# COPY all code source
+COPY *.py ${FUNCTION_DIR}
 
 #COPY ggml-alpaca-7b-q4.bin /opt/
 #COPY ggml-alpaca-7b-q4.bin /opt/
