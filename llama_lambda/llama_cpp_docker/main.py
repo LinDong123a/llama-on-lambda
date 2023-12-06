@@ -28,11 +28,12 @@ async def prompt(
 
     from llama_cpp import Llama
 
-    if item.seedval is None: 
-        seedval = random.randint(0, 65535)
+    seed = item.seed
+    if item.seed is None: 
+        seed = random.randint(0, 65535)
 
     if llm is None:
-        llm = Llama(model_path=MODELPATH, seed=seedval)
+        llm = Llama(model_path=MODELPATH, seed=seed)
 
     formatter = MessageFormatter("chat_ml")
     output = llm(
